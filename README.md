@@ -1,5 +1,7 @@
 # ai-skills
 
+[![CI](https://github.com/lucky-star-konata/ai-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/lucky-star-konata/ai-skills/actions/workflows/ci.yml)
+
 一组面向编码 Agent（Claude Code / Codex / Cursor / TRAE）的原创 Agent Skills。
 每个 skill 都是**可直接运行的本地工具**，零第三方依赖，只用 Python 3 标准库。
 
