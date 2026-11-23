@@ -57,7 +57,7 @@ python skills/repo-context/scripts/repo_context.py . --write AGENTS.md
 python skills/mcp-lint/scripts/mcp_lint.py .trae/mcp.json --strict
 ```
 
-每个脚本都支持 `--help`。JSON 输出便于接入 CI。
+每个脚本都支持 `--help` 与 `--version`（版本号统一读取仓库根目录的 `VERSION`）。JSON 输出便于接入 CI。
 
 ## 设计原则
 

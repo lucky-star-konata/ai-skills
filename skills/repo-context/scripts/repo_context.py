@@ -39,6 +39,15 @@ LANGUAGE_BY_EXT = {
 }
 TEST_DIRS = {"test", "tests", "__tests__", "spec", "specs", "e2e"}
 TEST_FILE_RE = re.compile(r"(?:^test_.*\.py$|.*_test\.py$|.*\.(?:test|spec)\.[jt]sx?$)")
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 def collect_files(root: Path):
@@ -282,6 +291,7 @@ def main(argv=None) -> int:
     parser.add_argument("--force", action="store_true", help="允许覆盖已存在的文件")
     parser.add_argument("--json", action="store_true", help="输出 JSON")
     parser.add_argument("--max-tree", type=int, default=15, help="目录结构最多展示多少项，默认 15")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     root = Path(args.path).expanduser().resolve()

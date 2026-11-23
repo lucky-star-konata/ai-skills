@@ -26,9 +26,18 @@ IGNORE_DIRS = {
 SECRET_KEY_RE = re.compile(r"(token|api[_-]?key|secret|password|passwd|credential)", re.I)
 SECRET_VALUE_RE = re.compile(r"(sk-[A-Za-z0-9]{8,}|ghp_[A-Za-z0-9]{8,}|Bearer\s+\S{8,}|token\s*=\s*\S{8,})", re.I)
 PLACEHOLDER_HINTS = ("${", "$", "%", "{{")
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
 
 LEVEL_ORDER = {"error": 0, "warn": 1, "info": 2}
 LEVEL_LABEL = {"error": "ERROR", "warn": "WARN ", "info": "INFO "}
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 class DuplicateKeyError(ValueError):
@@ -182,6 +191,7 @@ def main(argv=None) -> int:
     parser.add_argument("path", nargs="?", default=".", help="配置文件或目录，默认当前目录")
     parser.add_argument("--json", action="store_true", help="输出 JSON")
     parser.add_argument("--strict", action="store_true", help="存在警告也返回非零退出码")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     target = Path(args.path).expanduser().resolve()
@@ -214,7 +224,7 @@ def main(argv=None) -> int:
     if args.json:
         print(json.dumps({"results": results, "summary": summary}, ensure_ascii=False, indent=2))
     else:
-        print(f"mcp-lint 1.0 · 检查 {summary['configs']} 个配置文件\n")
+        print(f"mcp-lint {get_version()} · 检查 {summary['configs']} 个配置文件\n")
         for result in results:
             print(f"{result['file']}（{result['servers']} 个 server）")
             if not result["issues"]:

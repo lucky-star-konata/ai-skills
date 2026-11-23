@@ -50,6 +50,15 @@ KINDS = [
 ]
 SECTION_ORDER = ["决策与约束", "待办", "问题与报错", "关键事实", "其他要点"]
 BOLD_LABEL = re.compile(r"^\*\*[^*]{1,40}\*\*[:：]?\s*")
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 def estimate_tokens(text: str) -> int:
@@ -297,6 +306,7 @@ def main(argv=None) -> int:
     parser.add_argument("--keep-code", action="store_true", help="保留完整代码块")
     parser.add_argument("--no-dropped", action="store_true", help="不输出被丢弃段落清单")
     parser.add_argument("--title", default="上下文摘要", help="摘要标题")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     if args.path == "-":

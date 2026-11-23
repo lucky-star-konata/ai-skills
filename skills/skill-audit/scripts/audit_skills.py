@@ -30,9 +30,18 @@ TRIGGER_CUES = (
 REF_RE = re.compile(r"`([^`\n]+?\.(?:py|sh|ps1|js|ts|mjs|json|md|yaml|yml|toml|txt))`")
 HEADING_RE = re.compile(r"^#{1,6}\s+\S", re.M)
 RESOURCE_PREFIXES = ("scripts/", "references/", "assets/", "templates/")
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
 
 LEVEL_ORDER = {"error": 0, "warn": 1, "info": 2}
 LEVEL_LABEL = {"error": "ERROR", "warn": "WARN ", "info": "INFO "}
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 def estimate_tokens(text: str) -> int:
@@ -274,6 +283,7 @@ def main(argv=None) -> int:
     parser.add_argument("--json", action="store_true", help="输出 JSON")
     parser.add_argument("--strict", action="store_true", help="存在警告也返回非零退出码")
     parser.add_argument("--quiet", action="store_true", help="只输出汇总")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     target = Path(args.path).expanduser().resolve()
@@ -303,7 +313,7 @@ def main(argv=None) -> int:
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"skill-audit 1.0 · 目录 {root}")
+        print(f"skill-audit {get_version()} · 目录 {root}")
         if not args.quiet:
             for item in results:
                 if not item["issues"]:

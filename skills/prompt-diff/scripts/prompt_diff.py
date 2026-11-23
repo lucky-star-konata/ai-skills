@@ -42,6 +42,15 @@ CLASSIFIERS = [
 STRIP_RE = re.compile(r"^[\s>*#\-+•]+|^\d+[.、)]\s*")
 NUMBER_RE = re.compile(r"\d+(?:\.\d+)?%?")
 HEADING_RE = re.compile(r"^#{1,6}\s+")
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
 
 
 def normalize(text: str) -> str:
@@ -158,7 +167,7 @@ def diff(old_items, new_items, threshold: float):
 
 
 def print_report(old_path, new_path, old_items, new_items, removed, added, changed, stats, overall):
-    print(f"prompt-diff 1.0")
+    print(f"prompt-diff {get_version()}")
     print(f"旧版: {old_path}（{len(old_items)} 条）")
     print(f"新版: {new_path}（{len(new_items)} 条）\n")
 
@@ -203,6 +212,7 @@ def main(argv=None) -> int:
         "--fail-level", choices=["none", "low", "medium", "high"], default="none",
         help="达到该风险等级时返回非零退出码",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     old_path, new_path = Path(args.old), Path(args.new)
