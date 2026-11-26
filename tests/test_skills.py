@@ -25,6 +25,7 @@ class SkillSmokeTests(unittest.TestCase):
             "skills/prompt-diff/scripts/prompt_diff.py",
             "skills/repo-context/scripts/repo_context.py",
             "skills/mcp-lint/scripts/mcp_lint.py",
+            "skills/alert-triage/scripts/alert_triage.py",
         ):
             result = run([script, "--version"])
             self.assertEqual(result.returncode, 0, f"{script}: {result.stderr}")

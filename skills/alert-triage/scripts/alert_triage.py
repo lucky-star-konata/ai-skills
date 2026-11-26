@@ -25,9 +25,19 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-VERSION = "1.0"
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
 DEFAULT_LIMIT = 1000
 SNIPPET_MAX = 90
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
+
+
 
 VERDICT_ATTACK = "真实攻击"
 VERDICT_SUSPICIOUS = "可疑"
@@ -935,7 +945,7 @@ def summary_payload(results: list, total_input: int, truncated: int, source: str
 def render_text(results: list, summary: dict, detail: bool) -> str:
     lines = [
         "alert-triage %s · 输入 %d 条告警%s" % (
-            VERSION, summary["total_input"],
+            get_version(), summary["total_input"],
             "（仅分析前 %d 条）" % summary["analyzed"] if summary["truncated"] else "",
         ),
         "",
@@ -1036,7 +1046,7 @@ def render_text(results: list, summary: dict, detail: bool) -> str:
 def render_json(results: list, summary: dict) -> str:
     payload = {
         "tool": "alert-triage",
-        "version": VERSION,
+        "version": get_version(),
         "summary": summary,
         "alerts": results,
     }
@@ -1057,6 +1067,7 @@ def main(argv=None) -> int:
                         default="none", help="命中该级别时返回退出码 1")
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT,
                         help="最多分析多少条（默认 %d）" % DEFAULT_LIMIT)
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     if args.text is not None and args.input:
