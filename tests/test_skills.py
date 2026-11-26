@@ -17,6 +17,19 @@ def run(args, cwd=None):
 
 
 class SkillSmokeTests(unittest.TestCase):
+    def test_all_scripts_expose_version(self):
+        for script in (
+            "skills/skill-audit/scripts/audit_skills.py",
+            "skills/slop-check/scripts/slop_check.py",
+            "skills/context-slim/scripts/context_slim.py",
+            "skills/prompt-diff/scripts/prompt_diff.py",
+            "skills/repo-context/scripts/repo_context.py",
+            "skills/mcp-lint/scripts/mcp_lint.py",
+        ):
+            result = run([script, "--version"])
+            self.assertEqual(result.returncode, 0, f"{script}: {result.stderr}")
+            self.assertRegex(result.stdout, r"\d+\.\d+\.\d+")
+
     def test_skill_audit_passes_on_repo(self):
         result = run(["skills/skill-audit/scripts/audit_skills.py", "."])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

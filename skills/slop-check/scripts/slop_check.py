@@ -23,6 +23,16 @@ IGNORE_DIRS = {
     ".git", "node_modules", "dist", "build", "out", "coverage",
     ".next", ".nuxt", ".venv", "venv", "vendor", "__pycache__",
 }
+ROOT = Path(__file__).resolve().parents[3]
+VERSION_FILE = ROOT / "VERSION"
+
+
+def get_version() -> str:
+    try:
+        return VERSION_FILE.read_text(encoding="utf-8").strip() or "0.0.0"
+    except OSError:
+        return "0.0.0"
+
 
 RULES = [
     {
@@ -290,6 +300,7 @@ def main(argv=None) -> int:
     parser.add_argument("--threshold", type=int, default=None, help="分数低于该值时返回非零退出码")
     parser.add_argument("--include-js", action="store_true", help="把 .js/.ts/.mjs 也纳入扫描")
     parser.add_argument("--limit", type=int, default=40, help="最多展示多少条明细，默认 40")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {get_version()}")
     args = parser.parse_args(argv)
 
     target = Path(args.path).expanduser().resolve()
@@ -333,7 +344,7 @@ def main(argv=None) -> int:
         }
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"slop-check 1.0 · 扫描 {len(files)} 个文件 / {total_lines:,} 行")
+        print(f"slop-check {get_version()} · 扫描 {len(files)} 个文件 / {total_lines:,} 行")
         print(f"评分: {score}/100  等级 {rank}")
         if not by_rule:
             print("未命中任何规则，页面没有明显的模板化痕迹。")

@@ -61,7 +61,7 @@ python skills/mcp-lint/scripts/mcp_lint.py .trae/mcp.json --strict
 python skills/alert-triage/scripts/alert_triage.py --input alerts.log --fail-on attack
 ```
 
-每个脚本都支持 `--help`。JSON 输出便于接入 CI。
+每个脚本都支持 `--help` 与 `--version`（版本号统一读取仓库根目录的 `VERSION`）。JSON 输出便于接入 CI。
 
 ## 设计原则
 
