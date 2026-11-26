@@ -15,8 +15,9 @@
 | [prompt-diff](skills/prompt-diff/SKILL.md) | 对比提示词新旧版本，标出丢失的约束、变更的限制值和新增内容 | `python skills/prompt-diff/scripts/prompt_diff.py old.md new.md` |
 | [repo-context](skills/repo-context/SKILL.md) | 扫描仓库生成 AGENTS.md 草稿：技术栈、目录结构、命令、测试 | `python skills/repo-context/scripts/repo_context.py . --write AGENTS.md` |
 | [mcp-lint](skills/mcp-lint/SKILL.md) | 检查 MCP 配置：命令是否存在、明文凭据、明文 http、重名 server | `python skills/mcp-lint/scripts/mcp_lint.py .` |
+| [alert-triage](skills/alert-triage/SKILL.md) | 监控告警研判：判断真实攻击还是误报、识别攻击类型，给出溯源方向与加固清单 | `python skills/alert-triage/scripts/alert_triage.py --input alerts.log` |
 
-六个工具都不联网、不调用模型，结果可复现，适合放进 CI 或 pre-commit。
+七个工具都不联网、不调用模型，结果可复现，适合放进 CI 或 pre-commit。
 
 ## 安装
 
@@ -55,6 +56,9 @@ python skills/repo-context/scripts/repo_context.py . --write AGENTS.md
 
 # 6. 检查 MCP 配置
 python skills/mcp-lint/scripts/mcp_lint.py .trae/mcp.json --strict
+
+# 7. 告警研判，存在真实攻击时返回非零
+python skills/alert-triage/scripts/alert_triage.py --input alerts.log --fail-on attack
 ```
 
 每个脚本都支持 `--help`。JSON 输出便于接入 CI。

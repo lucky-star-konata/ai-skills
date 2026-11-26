@@ -89,6 +89,49 @@ class SkillSmokeTests(unittest.TestCase):
         self.assertIn("ERROR", result.stdout)
         self.assertIn("broken", result.stdout)
 
+    def test_alert_triage_flags_sqli_with_advice(self):
+        text = (
+            "src_ip=45.33.12.9 method=GET "
+            "url=\"/item?id=1 union select username,password from users\" "
+            "status=200 ua=\"sqlmap/1.7\" rule=\"SQL注入\""
+        )
+        result = run(["skills/alert-triage/scripts/alert_triage.py", "--text", text])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("真实攻击", result.stdout)
+        self.assertIn("SQL 注入", result.stdout)
+        self.assertIn("溯源", result.stdout)
+        self.assertIn("加固", result.stdout)
+
+    def test_alert_triage_marks_monitor_false_positive(self):
+        text = (
+            "src_ip=10.0.3.21 method=GET url=/healthz status=200 "
+            "ua=\"kube-probe/1.29\" rule=\"异常探测\""
+        )
+        result = run(["skills/alert-triage/scripts/alert_triage.py", "--text", text])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("误报", result.stdout)
+        self.assertIn("内网", result.stdout)
+
+    def test_alert_triage_batch_json_fail_on_attack(self):
+        content = (
+            "time,src_ip,method,url,status,ua,rule\n"
+            '2026-11-26 10:00:01,45.33.12.9,GET,"/item?id=1 union select 1",200,'
+            '"sqlmap/1.7","SQL注入"\n'
+            '2026-11-26 10:00:02,10.0.3.21,GET,/index.html,200,"Mozilla/5.0","正常访问"\n'
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "alerts.csv"
+            path.write_text(content, encoding="utf-8")
+            result = run([
+                "skills/alert-triage/scripts/alert_triage.py", "--input", str(path),
+                "--format", "json", "--fail-on", "attack",
+            ])
+        self.assertEqual(result.returncode, 1, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["summary"]["attack"], 1)
+        self.assertEqual(payload["summary"]["false_positive"], 1)
+        self.assertEqual(len(payload["alerts"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
